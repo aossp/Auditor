@@ -11,12 +11,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.UserManager;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
+
+import androidx.preference.PreferenceManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -256,7 +257,18 @@ class AttestationProtocol {
             "Pixel 3",
             "Pixel 3 XL",
             "Pixel 3a",
-            "Pixel 3a XL").contains(Build.MODEL);
+            "Pixel 3a XL",
+            "SM-N970U",
+            "SM-N975U").contains(Build.MODEL);
+
+    private static final ImmutableSet<Integer> extraPatchLevelMissing = ImmutableSet.of(
+            R.string.device_sm_a705fn,
+            R.string.device_sm_g970f,
+            R.string.device_sm_g975f,
+            R.string.device_sm_n970f,
+            R.string.device_sm_n970u,
+            R.string.device_sm_n975u,
+            R.string.device_sm_t510);
 
     private static final ImmutableMap<String, String> fingerprintsMigration = ImmutableMap
             .<String, String>builder()
@@ -288,6 +300,8 @@ class AttestationProtocol {
                     new DeviceInfo(R.string.device_pixel_3_xl, 3, 4, false /* uses new API */, true, R.string.os_graphene))
             .put("8FF8B9B4F831114963669E04EA4F849F33F3744686A0B33B833682746645ABC8",
                     new DeviceInfo(R.string.device_pixel_3a, 3, 4, false /* uses new API */, true, R.string.os_graphene))
+            .put("91943FAA75DCB6392AE87DA18CA57D072BFFB80BC30F8FAFC7FFE13D76C5736E",
+                    new DeviceInfo(R.string.device_pixel_3a_xl, 3, 4, false /* uses new API */, true, R.string.os_graphene))
             // CalyxOS
             .put("BCEBF6844F6B0FA2ABE8E62A9D0D57A324D0C02CEFDFA019FD49832F9ED39105",
                     new DeviceInfo(R.string.device_pixel_2_generic, 2, 3, true, true, R.string.os_calyx))
@@ -302,6 +316,8 @@ class AttestationProtocol {
                     new DeviceInfo(R.string.device_huawei_honor_7a_pro, 2, 3, false, true, R.string.os_stock))
             .put("DFC2920C81E136FDD2A510478FDA137B262DC51D449EDD7D0BDB554745725CFE",
                     new DeviceInfo(R.string.device_nokia, 2, 3, true, true, R.string.os_stock))
+            .put("4D790FA0A5FE81D6B352B90AFE430684D9BC817518CD24C50E6343395F7C51F2",
+                    new DeviceInfo(R.string.device_nokia_3_1, 2, 3, false, false, R.string.os_stock))
             .put("893A17FD918235DB2865F7F6439EB0134A45B766AA452E0675BAC6CFB5A773AA",
                     new DeviceInfo(R.string.device_nokia_7_1, 2, 3, true, true, R.string.os_stock))
             .put("6101853DFF451FAE5B137DF914D5E6C15C659337F2C405AC50B513A159071958",
@@ -320,22 +336,54 @@ class AttestationProtocol {
                     new DeviceInfo(R.string.device_pixel_3_generic, 3, 4, false /* uses new API */, true, R.string.os_stock))
             .put("E75B86C52C7496255A95FB1E2B1C044BFA9D5FE34DD1E4EEBD752EEF0EA89875",
                     new DeviceInfo(R.string.device_pixel_3a_generic, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("72376CAACF11726D4922585732429FB97D0D1DD69F0D2E0770B9E61D14ADDE65",
+                    new DeviceInfo(R.string.device_sm_a705fn, 3, 4, false /* uses new API */, true, R.string.os_stock))
             .put("33D9484FD512E610BCF00C502827F3D55A415088F276C6506657215E622FA770",
                     new DeviceInfo(R.string.device_sm_g960f, 1, 2, false, false, R.string.os_stock))
             .put("266869F7CF2FB56008EFC4BE8946C8F84190577F9CA688F59C72DD585E696488",
                     new DeviceInfo(R.string.device_sm_g960_na, 1, 2, false, false, R.string.os_stock))
+            .put("12E8460A7BAF709F3B6CF41C7E5A37C6EB4D11CB36CF7F61F7793C8DCDC3C2E4",
+                    new DeviceInfo(R.string.device_sm_g9600, 1, 2, false, false, R.string.os_stock))
             .put("D1C53B7A931909EC37F1939B14621C6E4FD19BF9079D195F86B3CEA47CD1F92D",
                     new DeviceInfo(R.string.device_sm_g965f, 1, 2, false, false, R.string.os_stock))
             .put("A4A544C2CFBAEAA88C12360C2E4B44C29722FC8DBB81392A6C1FAEDB7BF63010",
                     new DeviceInfo(R.string.device_sm_g965_msm, 1, 2, false, false, R.string.os_stock))
+            .put("9D77474FA4FEA6F0B28636222FBCEE2BB1E6FF9856C736C85B8EA6E3467F2BBA",
+                    new DeviceInfo(R.string.device_sm_g970f, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("08B2B5C6EC8F54C00C505756E1EF516BB4537B2F02D640410D287A43FCF92E3F",
+                    new DeviceInfo(R.string.device_sm_g975f, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("F0FC0AF47D3FE4F27D79CF629AD6AC42AA1EEDE0A29C0AE109A91BBD1E7CD76D",
+                    new DeviceInfo(R.string.device_sm_j260a, 1, 2, false, false, R.string.os_stock))
+            .put("410102030405060708090001020304050607080900010203040506070809005A",
+                    new DeviceInfo(R.string.device_sm_j260f, 1, 2, false, false, R.string.os_stock))
+            .put("D6B902D9E77DFC0FB3627FFEFA6D05405932EBB3A6ED077874B5E2A0CCBDB632",
+                    new DeviceInfo(R.string.device_sm_j260t1, 1, 2, false, false, R.string.os_stock))
+            .put("4558C1AFB30D1B46CB93F85462BC7D7FCF70B0103B9DBB0FE96DD828F43F29FC",
+                    new DeviceInfo(R.string.device_sm_j337a, 1, 2, false, false, R.string.os_stock))
+            .put("45E3AB5D61A03915AE10BF0465B186CB5D9A2FB6A46BEFAA76E4483BBA5A358D",
+                    new DeviceInfo(R.string.device_sm_j337t, 1, 2, false, false, R.string.os_stock))
+            .put("D95279A8F2E832FD68D919DBF33CFE159D5A1179686DB0BD2D7BBBF2382C4DD3",
+                    new DeviceInfo(R.string.device_sm_j720f, 1, 2, false, false, R.string.os_stock))
+            .put("BB053A5F64D3E3F17C4611340FF2BBE2F605B832A9FA412B2C87F2A163ECE2FB",
+                    new DeviceInfo(R.string.device_sm_j737t1, 1, 2, false, false, R.string.os_stock))
             .put("4E0570011025D01386D057B2B382969F804DCD19E001344535CF0CFDB8AD7CFE",
                     new DeviceInfo(R.string.device_sm_m205f, 1, 2, false, false, R.string.os_stock))
             .put("2A7E4954C9F703F3AC805AC660EA1727B981DB39B1E0F41E4013FA2586D3DF7F",
                     new DeviceInfo(R.string.device_sm_n960f, 1, 2, false, false, R.string.os_stock))
             .put("173ACFA8AE9EDE7BBD998F45A49231F3A4BDDF0779345732E309446B46B5641B",
                     new DeviceInfo(R.string.device_sm_n960u, 1, 2, false, false, R.string.os_stock))
+            .put("E94BC43B97F98CD10C22CD9D8469DBE621116ECFA624FE291A1D53CF3CD685D1",
+                    new DeviceInfo(R.string.device_sm_n970f, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("466011C44BBF883DB38CF96617ED35C796CE2552C5357F9230258329E943DB70",
+                    new DeviceInfo(R.string.device_sm_n970u, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("52946676088007755EB586B3E3F3E8D3821BE5DF73513E6C13640507976420E6",
+                    new DeviceInfo(R.string.device_sm_n975u, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("F3688C02D9676DEDB6909CADE364C271901FD66EA4F691AEB8B8921195E469C5",
+                    new DeviceInfo(R.string.device_sm_s367vl, 1, 2, false, false, R.string.os_stock))
             .put("106592D051E54388C6E601DFD61D59EB1674A8B93216C65C5B3E1830B73D3B82",
                     new DeviceInfo(R.string.device_sm_t510, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("87790149AED63553B768456AAB6DAAD5678CD87BDEB2BF3649467085349C34E0",
+                    new DeviceInfo(R.string.device_sm_t835, 1, 2, false, false, R.string.os_stock))
             .put("4285AD64745CC79B4499817F264DC16BF2AF5163AF6C328964F39E61EC84693E",
                     new DeviceInfo(R.string.device_sony_xperia_xa2, 2, 3, true, true, R.string.os_stock))
             .put("54A9F21E9CFAD3A2D028517EF333A658302417DB7FB75E0A109A019646CC5F39",
@@ -358,10 +406,24 @@ class AttestationProtocol {
                     new DeviceInfo(R.string.device_htc, 2, 3, true, false, R.string.os_stock))
             .put("80BAB060807CFFA45D4747DF1AD706FEE3AE3F645F80CF14871DDBE27E14C30B",
                     new DeviceInfo(R.string.device_moto_g7, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("C2224571C9CD5C89200A7311B1E37AA9CF751E2E19753E8D3702BCA00BE1D42C",
+                    new DeviceInfo(R.string.device_motorola_one_vision, 2, 3, false, true, R.string.os_stock))
             .put("1F6D98D1B0E1F1CE1C872BD36C668F9DFDBE0D47594789E1540DF4E6198F657D",
                     new DeviceInfo(R.string.device_vivo_1807, 2, 3, true, false, R.string.os_stock))
             .put("C55635636999E9D0A0588D24402256B7F9F3AEE07B4F7E4E003F09FF0190AFAE",
                     new DeviceInfo(R.string.device_revvl_2, 2, 3, false, false, R.string.os_stock))
+            .put("341C50D577DC5F3D5B46E8BFA22C22D1E5FC7D86D4D860E70B89222A7CBFC893",
+                    new DeviceInfo(R.string.device_oppo_cph1831, 2, 3, true, false, R.string.os_stock))
+            .put("41BF0A26BB3AFDCCCC40F7B685083522EB5BF1C492F0EC4847F351265313CB07",
+                    new DeviceInfo(R.string.device_oppo_cph1903, 2, 3, true, false, R.string.os_stock))
+            .put("7E19E217072BE6CB7A4C6F673FD3FB62DC51B3E204E7475838747947A3920DD8",
+                    new DeviceInfo(R.string.device_oppo_cph1909, 2, 3, false, false, R.string.os_stock))
+            .put("0D5F986943D0CE0D4F9783C27EEBE175BE359927DB8B6546B667279A81133C3C",
+                    new DeviceInfo(R.string.device_lg_q710al, 2, 3, false, false, R.string.os_stock))
+            .put("D20078F2AF2A7D3ECA3064018CB8BD47FBCA6EE61ABB41BA909D3C529CB802F4",
+                    new DeviceInfo(R.string.device_lm_q720, 3, 4, false /* uses new API */, false, R.string.os_stock))
+            .put("54EC644C21FD8229E3B0066513337A8E2C8EF3098A3F974B6A1CFE456A683DAE",
+                    new DeviceInfo(R.string.device_rmx1941, 2, 3, false, true, R.string.os_stock))
             .build();
 
     private static final ImmutableMap<String, DeviceInfo> fingerprintsStrongBoxCustomOS = ImmutableMap
@@ -385,6 +447,10 @@ class AttestationProtocol {
                     new DeviceInfo(R.string.device_pixel_3_generic, 3, 4, false /* uses new API */, true, R.string.os_stock))
             .put("8CA89AF1A6DAA74B00810849356DE929CFC4498EF36AF964757BDE8A113BF46D",
                     new DeviceInfo(R.string.device_pixel_3a_generic, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("3D3DEB132A89551D0A700D230BABAE4E3E80E3C7926ACDD7BAEDF9B57AD316D0",
+                    new DeviceInfo(R.string.device_sm_n970u, 3, 4, false /* uses new API */, true, R.string.os_stock))
+            .put("9AC63842137D92C119A1B1BE2C9270B9EBB6083BBE6350B7823571942B5869F0",
+                    new DeviceInfo(R.string.device_sm_n975u, 3, 4, false /* uses new API */, true, R.string.os_stock))
             .build();
 
     private static byte[] getChallengeIndex(final Context context) {
@@ -554,19 +620,19 @@ class AttestationProtocol {
                 throw new GeneralSecurityException("OS version is not a production release");
             }
         } else if (osVersion < OS_VERSION_MINIMUM) {
-            throw new GeneralSecurityException("OS version too old");
+            throw new GeneralSecurityException("OS version too old: " + osVersion);
         }
         final int osPatchLevel = teeEnforced.getOsPatchLevel();
         if (osPatchLevel < OS_PATCH_LEVEL_MINIMUM) {
-            throw new GeneralSecurityException("OS patch level too old");
+            throw new GeneralSecurityException("OS patch level too old: " + osPatchLevel);
         }
         final int vendorPatchLevel;
         if (teeEnforced.getVendorPatchLevel() == null) {
             vendorPatchLevel = 0;
         } else {
             vendorPatchLevel = teeEnforced.getVendorPatchLevel();
-            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && device.name != R.string.device_sm_t510) {
-                throw new GeneralSecurityException("Vendor patch level too old");
+            if (vendorPatchLevel < VENDOR_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+                throw new GeneralSecurityException("Vendor patch level too old: " + vendorPatchLevel);
             }
         }
         final int bootPatchLevel;
@@ -574,8 +640,8 @@ class AttestationProtocol {
             bootPatchLevel = 0;
         } else {
             bootPatchLevel = teeEnforced.getBootPatchLevel();
-            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && device.name != R.string.device_sm_t510) {
-                throw new GeneralSecurityException("Boot patch level too old");
+            if (bootPatchLevel < BOOT_PATCH_LEVEL_MINIMUM && !extraPatchLevelMissing.contains(device.name)) {
+                throw new GeneralSecurityException("Boot patch level too old: " + bootPatchLevel);
             }
         }
 
@@ -593,10 +659,11 @@ class AttestationProtocol {
         // version sanity checks
         final int attestationVersion = attestation.getAttestationVersion();
         if (attestationVersion < device.attestationVersion) {
-            throw new GeneralSecurityException("attestation version below " + device.attestationVersion);
+            throw new GeneralSecurityException("attestation version " + attestationVersion + " below " + device.attestationVersion);
         }
-        if (attestation.getKeymasterVersion() < device.keymasterVersion) {
-            throw new GeneralSecurityException("keymaster version below " + device.keymasterVersion);
+        final int keymasterVersion = attestation.getKeymasterVersion();
+        if (keymasterVersion < device.keymasterVersion) {
+            throw new GeneralSecurityException("keymaster version " + keymasterVersion + " below " + device.keymasterVersion);
         }
 
         final byte[] verifiedBootHash = rootOfTrust.getVerifiedBootHash();

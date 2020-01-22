@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.ScrollingMovementMethod;
@@ -24,6 +23,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.collect.ImmutableSet;
@@ -33,7 +33,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumMap;
 import java.util.Map;
@@ -85,11 +84,17 @@ public class AttestationActivity extends AppCompatActivity {
             "ALP-L29",
             "AUM-L29",
             "Aquaris X2 Pro",
+            "BBF100-1",
             "BBF100-6",
             "BKL-L04",
             "BKL-L09",
             "CLT-L29",
             "COL-L29",
+            "DUB-LX3",
+            "CPH1831",
+            "CPH1903",
+            "CPH1909",
+            "EML-L09",
             "EXODUS 1",
             "G8341",
             "G8342",
@@ -103,12 +108,18 @@ public class AttestationActivity extends AppCompatActivity {
             "H8324",
             "HTC 2Q55100",
             "JKM-LX3",
+            "LLD-L31",
+            "LG-Q710AL",
+            "LM-Q720",
             "LYA-L29",
             "Mi A2",
             "Mi A2 Lite",
             "MI 9",
             "moto g(7)",
+            "motorola one vision",
+            "Nokia 3.1",
             "Nokia 6.1",
+            "Nokia 6.1 Plus",
             "Nokia 7.1",
             "Nokia 7 plus",
             "ONEPLUS A6003",
@@ -120,19 +131,39 @@ public class AttestationActivity extends AppCompatActivity {
             "Pixel 3a",
             "Pixel 3a XL",
             "POCOPHONE F1",
+            "POT-LX3",
             "REVVL 2",
+            "RMX1941",
+            "SM-A705FN",
             "SM-G960F",
             "SM-G960U",
             "SM-G960U1",
             "SM-G960W",
+            "SM-G9600",
             "SM-G965F",
             "SM-G965U",
             "SM-G965U1",
             "SM-G965W",
+            "SM-G970F",
+            "SM-G975F",
+            "SM-J260A",
+            "SM-J260F",
+            "SM-J260T1",
+            "SM-J337A",
+            "SM-J337AZ",
+            "SM-J337T",
+            "SM-J720F",
+            "SM-J737T1",
             "SM-M205F",
             "SM-N960F",
             "SM-N960U",
+            "SM-N970F",
+            "SM-N970U",
+            "SM-N975U",
+            "SM-S367VL",
             "SM-T510",
+            "SM-T835",
+            "SNE-LX1",
             "vivo 1807").contains(Build.MODEL);
 
     private static int getFirstApiLevel() {
@@ -208,7 +239,7 @@ public class AttestationActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onSaveInstanceState(final Bundle savedInstanceState) {
+    public void onSaveInstanceState(@NonNull final Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         savedInstanceState.putBoolean(STATE_AUDITEE_PAIRING, auditeePairing);
         savedInstanceState.putByteArray(STATE_AUDITEE_SERIALIZED_ATTESTATION, auditeeSerializedAttestation);
@@ -352,6 +383,8 @@ public class AttestationActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
         Log.d(TAG, "onActivityResult " + requestCode + " " + resultCode);
 
         if (requestCode == GENERATE_REQUEST_CODE) {
